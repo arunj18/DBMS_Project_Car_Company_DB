@@ -1,0 +1,41 @@
+//query 1
+final all customers who made a corporate order and the CO production standard of the ordered vehcile is greater than 2.7
+
+SELECT name from customers WHERE Ord_ID in (select ord_id from orders where Ord_id in (select ord_id from vehicles where std_id in (select Std_No from standards where CO_Prod > 2.7)) and type ='corporate')
+
+//query 2
+find all orders placed by employees of sales and services and if the order placed by the employee was after Dec 2016 an employee discount is applied to their order.
+
+update orderplaced set offer_id = 'EMP-DIS-01' where Ord_id in (SELECT DISTINCT customers.Ord_id from customers,orders where name in (SELECT EName from employees where dept_id in (SELECT dept_no from departments where dname='sales' UNION SELECT dept_no from departments where dname='services')) and orders.Ord_date > '2016-12-31')
+
+SELECT * from orderplaced where Ord_id = '444-44-444'
+
+//query 3
+for all employees in legal hike their salary by 20% if they have children
+
+update employees SET Salary = Salary + 0.2 * Salary where Dept_id in (SELECT Dept_no from departments where dname ='legal') and Emp_ID in (SELECT Emp_ID from dependants where age < 18 )
+
+select * from employees where Dept_id in (SELECT Dept_no from departments where dname ='legal') and Emp_ID in (SELECT Emp_ID from dependants where age < 18 )
+
+//query 4
+find the sales made in south india and then list out the orders that have an outstanding of 400000, also mention the type of vehicle purchased.
+
+select DISTINCT pay_id,amount,type 
+from payments,vehicles,insurance
+where payments.ins_id in (select ins_id from insurance where ord_id in(select ord_id from orderplaced where b_id in (select Branch_ID from branches where Location in ('kochi','bangalore','chennai','hydrabad')))) and amount <400000 and payments.Ins_id = insurance.Ins_ID and insurance.Ord_id = vehicles.Ord_id
+
+//query 5
+find all orders placed in delhi which have their vehicles registered.
+
+SELECT DISTINCT registrations.Reg_ID,model_no from registrations,vehicles,insurance WHERE registrations.Reg_id in (SELECT reg_id from 	insurance where Ord_id in(SELECT Ord_id FROM `orderplaced` where B_id in (SELECT branches.Branch_ID from branches where location ='delhi'))) and insurance.Reg_id = registrations.Reg_ID and insurance.Ord_id = vehicles.Ord_id
+
+//query 6
+find all  optional parts and details of parts that are supplied by King Inc and also if these parts are of vehicles that are registered.
+
+SELECT part_no,pname,material,model_no from parts,suppliers where parts.Part_No in( SELECT Part_no FROM `needs` where Model_no in (SELECT Model_no from vehicles where vehicles.Ord_id in (SELECT orderplaced.Ord_ID from orderplaced where orderplaced.Ord_id in (SELECT insurance.Ord_id from insurance))) ) and parts.Type = 'optional' and Supplier_id in (SELECT suppliers.Supplier_ID from suppliers where suppliers.SName = 'King Inc')
+
+
+//query 7
+For all sedans that have been insured for 
+
+select * from vehicles,insurance,standards where  Type='sedan' and vehicles.Ord_id = insurance.Ord_id and vehicles.Std_id=standards.Std_No
